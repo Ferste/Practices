@@ -13,6 +13,10 @@ class ProductManager {
     }
 
     addProduct(title, description, price, thumbnail, code, stock) {
+        if (!title || !description || !price || !thumbnail || !code || stock === undefined) {
+            throw new Error("Todos los parámetros son obligatorios.");
+        }
+        
         const isCodeUnique = this.products.every((product) => product.code !== code);
 
         if (!isCodeUnique) {
@@ -101,4 +105,17 @@ if (foundProduct !== null) {
     console.log("Producto encontrado por ID:", foundProduct);
 } else {
     console.error("Producto no encontrado");
+}
+try {
+    // Intentar agregar un producto sin todos los parámetros requeridos
+    productManager.addProduct(
+        "producto prueba",
+        "Este es un producto prueba",
+        200,
+        "Sin imagen",
+        "abc123"
+        // Faltan stock en este ejemplo
+    );
+} catch (error) {
+    console.error("Error al agregar producto sin todos los parámetros:", error.message);
 }
