@@ -1,121 +1,133 @@
+const path = require('path');
+const fs = require('fs');
+
 class ProductManager {
     constructor() {
         this.products = [];
+        this.jsonFilePath = './products.json';
     }
 
-    generateProductId() {
-        const productId = (this.products.length + 1).toString();
-        return productId;
+    async loadProductsFromJSON() {
+        try {
+            const absolutePath = path.resolve(this.jsonFilePath);
+
+            if (!fs.existsSync(absolutePath)) {
+                fs.writeFileSync(absolutePath, '[]', 'utf8');
+                console.log(`Archivo JSON '${this.jsonFilePath}' creado.`);
+            }
+
+            const data = fs.readFileSync(absolutePath, 'utf8');
+            this.products = JSON.parse(data);
+            console.log('Productos cargados con exito desde el archivo JSON.');
+        } catch (error) {
+            console.error('Error al cargar productos desde el archivo JSON:', error);
+        }
+    }
+
+    addProduct(newProduct) {
+        const requiredFields = ['title', 'description', 'price', 'thumbnail', 'code', 'stock'];
+        const missingFields = requiredFields.filter(field => !newProduct.hasOwnProperty(field));
+
+        if (missingFields.length > 0) {
+            console.error(`El producto no puede ser agregado. Faltan los siguientes campos: ${missingFields.join(', ')}`);
+            return;
+        }
+
+        const existingProduct = this.products.find(product => product.code === newProduct.code);
+        if (existingProduct) {
+            console.error(`Ya existe un producto con el codigo '${newProduct.code}'.`);
+            return;
+        }
+
+        newProduct.id = this.products.length + 1;
+
+        this.products.push(newProduct);
+        console.log('Producto agregado con exito.');
+
+        this.saveProductsToJSON();
+    }
+
+    saveProductsToJSON() {
+        try {
+            const absolutePath = path.resolve(this.jsonFilePath);
+            const jsonData = JSON.stringify(this.products, null, 2);
+            fs.writeFileSync(absolutePath, jsonData, 'utf8');
+            console.log('Productos guardados con exito en el archivo JSON.');
+        } catch (error) {
+            console.error('Error al guardar productos en el archivo JSON:', error);
+        }
     }
 
     getProducts() {
         return this.products;
     }
 
-    addProduct(title, description, price, thumbnail, code, stock) {
-        if (!title || !description || !price || !thumbnail || !code || stock === undefined) {
-            throw new Error("Todos los parámetros son obligatorios.");
+    getProductById(id) {
+        const product = this.products.find(product => product.id === id);
+        if (!product) {
+            throw new Error(`No se encontro ningun producto con el ID ${id}.`);
         }
-        
-        const isCodeUnique = this.products.every((product) => product.code !== code);
-
-        if (!isCodeUnique) {
-            throw new Error("El código del producto ya está en uso.");
-        }
-
-        const productId = this.generateProductId();
-        const newProduct = {
-            id: productId,
-            title,
-            description,
-            price,
-            thumbnail,
-            code,
-            stock,
-        };
-
-        this.products.push(newProduct);
-        return newProduct;
+        return product;
     }
 
-    getProductById(id) {
-        const product = this.products.find((product) => product.id === id);
+    updateProduct(id, updatedFields) {
+        const productToUpdate = this.getProductById(id);
 
-        if (!product) {
-            console.error("Not found");
-            return null;
+        if (updatedFields.hasOwnProperty('id')) {
+            console.error('El campo "id" no puede ser modificado.');
+            return;
         }
 
-        return product;
+        for (const field in updatedFields) {
+            if (updatedFields.hasOwnProperty(field)) {
+                productToUpdate[field] = updatedFields[field];
+            }
+        }
+
+        console.log('Producto actualizado con exito.');
+
+        this.saveProductsToJSON();
+    }
+
+    deleteProduct(id) {
+        const index = this.products.findIndex(product => product.id === id);
+        if (index === -1) {
+            console.error(`No se encontro ningun producto con el ID ${id}.`);
+            return;
+        }
+
+        this.products.splice(index, 1);
+        console.log('Producto eliminado con exito.');
+
+        this.saveProductsToJSON();
     }
 }
 
 const productManager = new ProductManager();
+productManager.loadProductsFromJSON();
 
+const newProduct = {
+    title: 'producto prueba',
+    description: 'Este es un producto prueba',
+    price: 200,
+    thumbnail: 'Sin imagen',
+    code: 'abc123',
+    stock: 25
+};
+
+productManager.addProduct(newProduct);
 
 console.log(productManager.getProducts());
 
+const productIdToUpdate = 1;
+const updatedFields = {
+    price: 200,
+    description: 'Descripción actualizada'
+};
 
-const newProduct = productManager.addProduct(
-    "producto prueba",
-    "Este es un producto prueba",
-    200,
-    "Sin imagen",
-    "abc123",
-    25
-);
-productManager.addProduct(
-    "Producto 2",
-    "Descripción del producto 2",
-    100,
-    "Imagen 2",
-    "code1",
-    10
-);
+productManager.updateProduct(productIdToUpdate, updatedFields);
 
-productManager.addProduct(
-    "Producto 3",
-    "Descripción del producto 3",
-    150,
-    "Imagen 3",
-    "code2",
-    20
-);
-console.log("Producto agregado:", newProduct);
+const productIdToDelete = 3;
+productManager.deleteProduct(productIdToDelete);
+
 console.log(productManager.getProducts());
-
-try {
-    productManager.addProduct(
-        "producto prueba",
-        "Este es un producto prueba",
-        200,
-        "Sin imagen",
-        "abc123",
-        25
-    );
-} catch (error) {
-    console.error("Error al agregar producto duplicado:", error.message);
-}
-
-
-const productIdToFind = '2'; 
-const foundProduct = productManager.getProductById(productIdToFind);
-
-if (foundProduct !== null) {
-    console.log("Producto encontrado por ID:", foundProduct);
-} else {
-    console.error("Producto no encontrado");
-}
-try {
-    // Intentar agregar un producto sin todos los parámetros requeridos
-    productManager.addProduct(
-        "producto prueba",
-        "Este es un producto prueba",
-        200,
-        "Sin imagen",
-        "abc123"
-        // Faltan stock en este ejemplo
-    );
-} catch (error) {
-    console.error("Error al agregar producto sin todos los parámetros:", error.message);
-}
