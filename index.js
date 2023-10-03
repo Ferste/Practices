@@ -1,5 +1,6 @@
 const path = require('path');
 const fs = require('fs');
+// const uuid = require('uuid');
 
 class ProductManager {
     constructor() {
@@ -39,7 +40,9 @@ class ProductManager {
             return;
         }
 
+        
         newProduct.id = this.products.length + 1;
+        // newProduct.id = uuid.v4(); 
 
         this.products.push(newProduct);
         console.log('Producto agregado con exito.');
@@ -59,6 +62,7 @@ class ProductManager {
     }
 
     getProducts() {
+        this.loadProductsFromJSON();
         return this.products;
     }
 
@@ -72,20 +76,24 @@ class ProductManager {
 
     updateProduct(id, updatedFields) {
         const productToUpdate = this.getProductById(id);
-
+    
         if (updatedFields.hasOwnProperty('id')) {
             console.error('El campo "id" no puede ser modificado.');
             return;
         }
-
+    
+        const allowedFields = ['title', 'description', 'price', 'thumbnail', 'code', 'stock'];
+    
         for (const field in updatedFields) {
-            if (updatedFields.hasOwnProperty(field)) {
+            if (updatedFields.hasOwnProperty(field) && allowedFields.includes(field)) {
                 productToUpdate[field] = updatedFields[field];
+            } else {
+                console.error(`El campo "${field}" no es un campo válido para actualizar.`);
             }
         }
-
+    
         console.log('Producto actualizado con exito.');
-
+    
         this.saveProductsToJSON();
     }
 
@@ -122,7 +130,8 @@ console.log(productManager.getProducts());
 const productIdToUpdate = 1;
 const updatedFields = {
     price: 200,
-    description: 'Descripción actualizada'
+    description: 'Descripción actualizada',
+    banana : 'banana'
 };
 
 productManager.updateProduct(productIdToUpdate, updatedFields);

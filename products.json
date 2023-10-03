@@ -1,20 +1,11 @@
 [
   {
-    "title": "Nuevo producto",
-    "description": "Descripción actualizada",
-    "price": 200,
-    "thumbnail": "sin imagen",
-    "code": "xyz789",
-    "stock": 10,
-    "id": 1
-  },
-  {
     "title": "producto prueba",
-    "description": "Este es un producto prueba",
+    "description": "Descripción actualizada",
     "price": 200,
     "thumbnail": "Sin imagen",
     "code": "abc123",
     "stock": 25,
-    "id": 2
+    "id": 1
   }
 ]
