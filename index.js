@@ -61,8 +61,13 @@ class ProductManager {
         }
     }
 
-    getProducts() {
+    getProducts(limit) {
         this.loadProductsFromJSON();
+        
+        if (limit !== undefined) {
+            return this.products.slice(0, limit);
+        }
+
         return this.products;
     }
 
@@ -114,29 +119,31 @@ class ProductManager {
 const productManager = new ProductManager();
 productManager.loadProductsFromJSON();
 
-const newProduct = {
-    title: 'producto prueba',
-    description: 'Este es un producto prueba',
-    price: 200,
-    thumbnail: 'Sin imagen',
-    code: 'abc123',
-    stock: 25
-};
+// const newProduct = {
+//     title: 'producto prueba',
+//     description: 'Este es un producto prueba',
+//     price: 200,
+//     thumbnail: 'Sin imagen',
+//     code: 'abc123',
+//     stock: 25
+// };
 
-productManager.addProduct(newProduct);
+// productManager.addProduct(newProduct);
+
+console.log(productManager.getProducts());
+
+// const productIdToUpdate = 1;
+// const updatedFields = {
+//     price: 200,
+//     description: 'Descripción actualizada',
+//     banana : 'banana'
+// };
+
+// productManager.updateProduct(productIdToUpdate, updatedFields);
+
+// const productIdToDelete = 3;
+// productManager.deleteProduct(productIdToDelete);
 
 console.log(productManager.getProducts());
 
-const productIdToUpdate = 1;
-const updatedFields = {
-    price: 200,
-    description: 'Descripción actualizada',
-    banana : 'banana'
-};
-
-productManager.updateProduct(productIdToUpdate, updatedFields);
-
-const productIdToDelete = 3;
-productManager.deleteProduct(productIdToDelete);
-
-console.log(productManager.getProducts());
+module.exports = ProductManager;
