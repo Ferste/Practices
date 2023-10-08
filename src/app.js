@@ -5,7 +5,7 @@ const ProductManager = require('./index');
 
 const PORT = 8080;
 
-const productManager = new ProductManager();
+const productManager = new ProductManager('../products.json');
 
 
 app.use(express.json());

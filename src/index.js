@@ -3,23 +3,23 @@ const fs = require('fs');
 // const uuid = require('uuid');
 
 class ProductManager {
-    constructor() {
+    constructor(dire) {
         this.products = [];
-        this.jsonFilePath = './products.json';
+        this.path = dire;
     }
 
     async loadProductsFromJSON() {
         try {
-            const absolutePath = path.resolve(this.jsonFilePath);
+            const absolutePath = path.resolve(this.path); 
 
             if (!fs.existsSync(absolutePath)) {
                 fs.writeFileSync(absolutePath, '[]', 'utf8');
-                console.log(`Archivo JSON '${this.jsonFilePath}' creado.`);
+                console.log(`Archivo JSON '${this.path}' creado.`); 
             }
 
             const data = fs.readFileSync(absolutePath, 'utf8');
             this.products = JSON.parse(data);
-            console.log('Productos cargados con exito desde el archivo JSON.');
+            console.log('Productos cargados con éxito desde el archivo JSON.');
         } catch (error) {
             console.error('Error al cargar productos desde el archivo JSON:', error);
         }
@@ -116,7 +116,7 @@ class ProductManager {
     }
 }
 
-const productManager = new ProductManager();
+const productManager = new ProductManager('../products.json');
 productManager.loadProductsFromJSON();
 
 // const newProduct = {
